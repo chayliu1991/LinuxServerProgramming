@@ -127,11 +127,22 @@ sudo arp -s IP MAC # 增加一条 arp 缓存
 
 ## tcpdump 观察 ARP 通信过程
 
+```
+sudo arp -d 192.168.1.100
+sudo tcpdump -i enp3s0 -ent '(dst 192.168.1.59 and src 192.168.1.100)or(dst 192.168.1.100 and src 192.168.1.59)'
 
+telnet 192.168.1.59 echo
+```
 
+结果：
 
+```
+1c:69:7a:49:03:20 > ff:ff:ff:ff:ff:ff, ethertype ARP (0x0806), length 42: Request who-has 192.168.1.100 tell 192.168.1.59, length 28
+00:0c:29:b5:87:ca > 1c:69:7a:49:03:20, ethertype ARP (0x0806), length 60: Reply 192.168.1.100 is-at 00:0c:29:b5:87:ca, length 46
+```
 
-# DNS 工作原理
+- 第一个数包 arp 通信的源端的物理地址是 `1c:69:7a:49:03:20`，目的端的物理地址是 `ff:ff:ff:ff:ff:ff`，这是以太网的广播地址，用来表示整个 LAN。该 LAN 上的所有机器都会收到并处理这个帧。`0x0806` 是以太网头部的类型字段，它表示 ARP 模块。数据部分长度为 28 字节。`Request` 表示这是一个 ARP 请求。
+- 第二个数包 arp 通信的源端的物理地址是 `00:0c:29:b5:87:ca`，目的端的物理地址是 `1c:69:7a:49:03:20`，`Reply` 表示这是一个 ARP 应答。DNS 工作原理
 
 DNS 是一套分布式的域名服务系统，每个 DNS 服务器上都存放着大量的机器名 和 IP 地址的映射，并且是动态更新的。
 
